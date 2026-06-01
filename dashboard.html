@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard - Advanced Analytics</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-cloud-sun"></i> WeatherHub</h2>
+                <p>Dashboard</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-view="current">
+                    <i class="fas fa-thermometer-half"></i>
+                    <span>Current Weather</span>
+                </a>
+                <a href="#" class="nav-item" data-view="forecast">
+                    <i class="fas fa-calendar-days"></i>
+                    <span>5-Day Forecast</span>
+                </a>
+                <a href="#" class="nav-item" data-view="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-view="comparison">
+                    <i class="fas fa-city"></i>
+                    <span>City Comparison</span>
+                </a>
+                <a href="#" class="nav-item" data-view="alerts">
+                    <i class="fas fa-bell"></i>
+                    <span>Weather Alerts</span>
+                    <span class="alert-badge" id="alertBadge">0</span>
+                </a>
+                <a href="#" class="nav-item" data-view="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-dashboard">
+            <!-- Top Header -->
+            <div class="dashboard-header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="dashboardSearch" placeholder="Search city..." autocomplete="off">
+                    <div class="search-suggestions" id="dashboardSuggestions"></div>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" id="refreshBtn" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="action-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-sliders-h"></i>
+                    </button>
+                    <div class="user-profile">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Views Container -->
+            <div class="views-container">
+                <!-- Current Weather View -->
+                <div class="view" id="current-view" style="display: block;">
+                    <div class="current-weather-section">
+                        <div class="city-header">
+                            <h1 id="cityTitle">Select a City</h1>
+                            <p id="locationInfo"></p>
+                            <p id="lastUpdate"></p>
+                        </div>
+                        <div class="current-display">
+                            <div class="weather-main">
+                                <div class="weather-icon-huge" id="mainIcon"></div>
+                                <div class="temp-display">
+                                    <span class="temperature" id="mainTemp">--</span>
+                                    <span class="unit">°C</span>
+                                </div>
+                            </div>
+                            <div class="weather-description">
+                                <p id="weatherDesc">--</p>
+                                <p id="feelsLike">Feels like --°C</p>
+                            </div>
+                        </div>
+                        <div class="weather-grid">
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-droplet"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">Humidity</div>
+                                    <div class="card-value" id="humidity">--%</div>
+                                </div>
+                            </div>
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-wind"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">Wind Speed</div>
+                                    <div class="card-value" id="windSpeed">-- km/h</div>
+                                </div>
+                            </div>
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-gauge"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">Pressure</div>
+                                    <div class="card-value" id="pressure">-- mb</div>
+                                </div>
+                            </div>
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-eye"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">Visibility</div>
+                                    <div class="card-value" id="visibility">-- km</div>
+                                </div>
+                            </div>
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-cloud"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">Cloudiness</div>
+                                    <div class="card-value" id="clouds">--%</div>
+                                </div>
+                            </div>
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-sun"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">UV Index</div>
+                                    <div class="card-value" id="uvIndex">--</div>
+                                </div>
+                            </div>
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-sunrise"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">Sunrise</div>
+                                    <div class="card-value" id="sunrise">--:--</div>
+                                </div>
+                            </div>
+                            <div class="weather-card">
+                                <div class="card-icon"><i class="fas fa-sunset"></i></div>
+                                <div class="card-content">
+                                    <div class="card-label">Sunset</div>
+                                    <div class="card-value" id="sunset">--:--</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forecast View -->
+                <div class="view" id="forecast-view">
+                    <div class="section-title">5-Day Weather Forecast</div>
+                    <div class="forecast-container" id="forecastContainer"></div>
+                </div>
+
+                <!-- Analytics View -->
+                <div class="view" id="analytics-view">
+                    <div class="analytics-grid">
+                        <div class="chart-container">
+                            <div class="section-title">Temperature Trend (24h)</div>
+                            <canvas id="tempChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="section-title">Humidity & Pressure</div>
+                            <canvas id="humidityChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="section-title">Wind Speed Analysis</div>
+                            <canvas id="windChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="section-title">Weather Distribution</div>
+                            <canvas id="weatherChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison View -->
+                <div class="view" id="comparison-view">
+                    <div class="comparison-section">
+                        <div class="section-title">Compare Multiple Cities</div>
+                        <div class="comparison-input-group">
+                            <input type="text" id="comparisonCityInput" placeholder="Add a city to compare..." autocomplete="off">
+                            <button id="addComparisonBtn" class="btn-primary">Add City</button>
+                            <button id="clearComparisonBtn" class="btn-secondary">Clear All</button>
+                        </div>
+                        <div class="comparison-suggestions" id="comparisonSuggestions"></div>
+                        <div class="comparison-table" id="comparisonTable"></div>
+                    </div>
+                </div>
+
+                <!-- Alerts View -->
+                <div class="view" id="alerts-view">
+                    <div class="section-title">Weather Alerts & Warnings</div>
+                    <div class="alerts-container" id="alertsContainer">
+                        <p class="no-alerts">No active weather alerts for this location.</p>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div class="view" id="settings-view">
+                    <div class="settings-container">
+                        <div class="section-title">Dashboard Settings</div>
+                        <div class="settings-group">
+                            <h3>Temperature Unit</h3>
+                            <div class="settings-option">
+                                <input type="radio" id="celsius" name="tempUnit" value="metric" checked>
+                                <label for="celsius">Celsius (°C)</label>
+                            </div>
+                            <div class="settings-option">
+                                <input type="radio" id="fahrenheit" name="tempUnit" value="imperial">
+                                <label for="fahrenheit">Fahrenheit (°F)</label>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h3>Wind Speed Unit</h3>
+                            <div class="settings-option">
+                                <input type="radio" id="kmh" name="windUnit" value="kmh" checked>
+                                <label for="kmh">km/h</label>
+                            </div>
+                            <div class="settings-option">
+                                <input type="radio" id="ms" name="windUnit" value="ms">
+                                <label for="ms">m/s</label>
+                            </div>
+                            <div class="settings-option">
+                                <input type="radio" id="mph" name="windUnit" value="mph">
+                                <label for="mph">mph</label>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h3>Auto-Refresh</h3>
+                            <div class="settings-option">
+                                <input type="checkbox" id="autoRefresh" checked>
+                                <label for="autoRefresh">Enable auto-refresh every 10 minutes</label>
+                            </div>
+                        </div>
+                        <div class="settings-group">
+                            <h3>Display Mode</h3>
+                            <div class="settings-option">
+                                <input type="radio" id="lightMode" name="displayMode" value="light" checked>
+                                <label for="lightMode">Light Mode</label>
+                            </div>
+                            <div class="settings-option">
+                                <input type="radio" id="darkMode" name="displayMode" value="dark">
+                                <label for="darkMode">Dark Mode</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for detailed forecast -->
+    <div class="modal" id="forecastModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="dashboard-app.js"></script>
+</body>
+</html>

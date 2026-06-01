@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast - India</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-cloud-sun"></i> WeatherHub India</h1>
+                <p>Real-time Weather Forecasts for India</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Search Section -->
+            <section class="search-section">
+                <div class="search-container">
+                    <div class="search-input-group">
+                        <input 
+                            type="text" 
+                            id="cityInput" 
+                            placeholder="Search city (e.g., Mumbai, Delhi, Bangalore)..."
+                            autocomplete="off"
+                        >
+                        <button id="searchBtn" class="search-btn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div class="suggestions" id="suggestions"></div>
+                </div>
+
+                <!-- Quick Access Cities -->
+                <div class="quick-cities">
+                    <h3>Popular Cities in India</h3>
+                    <div class="cities-grid">
+                        <button class="city-btn" data-city="Mumbai">Mumbai</button>
+                        <button class="city-btn" data-city="Delhi">Delhi</button>
+                        <button class="city-btn" data-city="Bangalore">Bangalore</button>
+                        <button class="city-btn" data-city="Hyderabad">Hyderabad</button>
+                        <button class="city-btn" data-city="Chennai">Chennai</button>
+                        <button class="city-btn" data-city="Kolkata">Kolkata</button>
+                        <button class="city-btn" data-city="Pune">Pune</button>
+                        <button class="city-btn" data-city="Jaipur">Jaipur</button>
+                    </div>
+                </div>
+            </section>
+
+            <div class="content-wrapper">
+                <!-- Weather Display Section -->
+                <section class="weather-section">
+                    <div id="weatherContainer" class="weather-container">
+                        <div class="placeholder">
+                            <i class="fas fa-search"></i>
+                            <p>Search for a city to see the weather</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AI Chatbot Section -->
+                <section class="chatbot-section">
+                    <div class="chat-header">
+                        <h3><i class="fas fa-robot"></i> Weather AI Assistant</h3>
+                        <button id="toggleChat" class="toggle-btn">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="chat-container" id="chatContainer">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message bot-message">
+                                <p>Hello! 👋 I'm your Weather AI Assistant. Ask me anything about the weather in Indian cities!</p>
+                            </div>
+                        </div>
+                        <div class="chat-input-group">
+                            <input 
+                                type="text" 
+                                id="chatInput" 
+                                placeholder="Ask about weather, temperature, rainfall, etc..."
+                                autocomplete="off"
+                            >
+                            <button id="sendBtn" class="send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 WeatherHub India. Data powered by OpenWeatherMap API.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

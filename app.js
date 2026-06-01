@@ -1,5 +1,5 @@
 // OpenWeatherMap API Configuration
-const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your API key from https://openweathermap.org/api
+const API_KEY = '8349be40f799b141ec61d17fe13e5b80'; // Replace with your API key from https://openweathermap.org/api
 const API_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 // Indian cities for autocomplete

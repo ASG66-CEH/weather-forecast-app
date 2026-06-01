@@ -1,5 +1,5 @@
 // OpenWeatherMap API Configuration
-const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your API key
+const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your API key from https://openweathermap.org/api
 const API_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 // Indian cities for autocomplete
@@ -34,42 +34,52 @@ const WEATHER_ICONS = {
     '50n': '🌫️'   // mist night
 };
 
+// Color mapping by weather condition
+const WEATHER_COLORS = {
+    'Clear': { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', accentStart: '#FFD93D', accentEnd: '#FF6B6B' },
+    'Clouds': { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', accentStart: '#95E1D3', accentEnd: '#C8E9E9' },
+    'Rain': { bg: 'linear-gradient(135deg, #2E86AB 0%, #A23B72 100%)', accentStart: '#30B0C5', accentEnd: '#6F86D6' },
+    'Thunderstorm': { bg: 'linear-gradient(135deg, #1a202c 0%, #4A5568 100%)', accentStart: '#FFD93D', accentEnd: '#FF6B6B' },
+    'Snow': { bg: 'linear-gradient(135deg, #D4F1F4 0%, #B0E0E6 100%)', accentStart: '#4A90E2', accentEnd: '#50C878' },
+    'Mist': { bg: 'linear-gradient(135deg, #A9B5C4 0%, #8896BB 100%)', accentStart: '#CBD5E0', accentEnd: '#A0AEC0' }
+};
+
 // AI Response Templates for Weather Queries
 const AI_RESPONSES = {
     greeting: [
-        'Hello! How can I help you with weather information today?',
-        'Hi there! What would you like to know about the weather?',
-        'Namaste! Ask me anything about Indian weather!'
+        'Hello! How can I help you with weather information today? 🌤️',
+        'Hi there! What would you like to know about the weather? 😊',
+        'Namaste! Ask me anything about Indian weather! 🇮🇳'
     ],
     temperature: [
-        'The current temperature in {city} is {temp}°C. Perfect for {activity}!',
-        'It\'s {temp}°C in {city}. {activity_advice}',
-        'Temperature in {city}: {temp}°C. {wear_advice}'
+        'The current temperature in {city} is {temp}°C. Perfect for {activity}! 🌡️',
+        'It\'s {temp}°C in {city}. {activity_advice} 🌍',
+        'Temperature in {city}: {temp}°C. {wear_advice} 👕'
     ],
     rain: [
-        'There\'s a {chance}% chance of rain in {city}. Don\'t forget your umbrella!',
-        'Rain expected in {city}. Humidity is at {humidity}%.',
-        '{city} has moisture in the air. Pack an umbrella just in case!'
+        'There\'s a {chance}% chance of rain in {city}. Don\'t forget your umbrella! ☔',
+        'Rain expected in {city}. Humidity: {humidity}%. 💧',
+        '{city} has moisture in the air. Pack an umbrella just in case! 🌧️'
     ],
     hot: [
-        'It\'s quite hot in {city} at {temp}°C. Stay hydrated and use sunscreen!',
-        'Very warm weather in {city}! Temperature: {temp}°C. Drink plenty of water.',
-        '{city} is experiencing high heat at {temp}°C. Wear light, breathable clothes.'
+        'It\'s quite hot in {city} at {temp}°C. Stay hydrated and use sunscreen! 🌞',
+        'Very warm weather in {city}! Temperature: {temp}°C. Drink plenty of water. 💧',
+        '{city} is experiencing high heat at {temp}°C. Wear light, breathable clothes. 👕'
     ],
     cold: [
-        'It\'s cold in {city} at {temp}°C. Wear warm clothes!',
-        'Chilly weather in {city} ({temp}°C). Bundle up!',
-        '{city} is cool at {temp}°C. Don\'t forget your jacket!'
+        'It\'s cold in {city} at {temp}°C. Wear warm clothes! 🧥',
+        'Chilly weather in {city} ({temp}°C). Bundle up! 🥶',
+        '{city} is cool at {temp}°C. Don\'t forget your jacket! 🧤'
     ],
     humidity: [
-        'Humidity in {city} is {humidity}%. The air feels {feel}.',
-        '{city} has {humidity}% humidity. It\'s {feel} outside.',
-        'Moisture level: {humidity}%. Air quality: {feel}'
+        'Humidity in {city} is {humidity}%. The air feels {feel}. 💧',
+        '{city} has {humidity}% humidity. It\'s {feel} outside. 🌡️',
+        'Moisture level: {humidity}%. Air quality: {feel} 🌬️'
     ],
     wind: [
-        'Wind speed in {city} is {wind} km/h. {safety_advice}',
-        '{city} has winds at {wind} km/h. {activity_advice}',
-        'Wind in {city}: {wind} km/h. {weather_advice}'
+        'Wind speed in {city} is {wind} km/h. {safety_advice} 💨',
+        '{city} has winds at {wind} km/h. {activity_advice} 🌪️',
+        'Wind in {city}: {wind} km/h. {weather_advice} 🌬️'
     ]
 };
 
@@ -89,6 +99,8 @@ const chatContainer = document.getElementById('chatContainer');
 // Current weather data (global scope for chatbot)
 let currentWeather = null;
 let currentCity = '';
+let autoRefreshInterval = null;
+let isAutoRefreshing = false;
 
 // Event Listeners
 searchBtn.addEventListener('click', searchWeather);
@@ -106,8 +118,18 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Check API Key on load
+function checkApiKey() {
+    if (API_KEY === 'YOUR_OPENWEATHERMAP_API_KEY') {
+        displayError('⚠️ API Key not configured. Please get one from https://openweathermap.org/api and update the API_KEY in app.js');
+        return false;
+    }
+    return true;
+}
+
 // Search weather function
 function searchWeather() {
+    if (!checkApiKey()) return;
     const city = cityInput.value.trim();
     if (city) {
         searchWeatherByCity(city);
@@ -117,7 +139,9 @@ function searchWeather() {
 
 // Search weather by city name
 async function searchWeatherByCity(city) {
-    weatherContainer.innerHTML = '<div class="loading">Loading weather data</div>';
+    if (!checkApiKey()) return;
+    
+    weatherContainer.innerHTML = '<div class="loading">🔄 Loading weather data...</div>';
     
     try {
         const response = await fetch(
@@ -133,25 +157,36 @@ async function searchWeatherByCity(city) {
         currentCity = data.name;
         cityInput.value = data.name;
         displayWeather(data);
+        startAutoRefresh();
     } catch (error) {
-        displayError(`Error: ${error.message}. Please check the city name or API key.`);
+        displayError(`❌ Error: ${error.message}. Please check the city name or API key.`);
     }
 }
 
-// Display weather data
+// Display weather data with live status
 function displayWeather(data) {
     const { name, sys, main, weather, wind, clouds, visibility } = data;
     const icon = WEATHER_ICONS[weather[0].icon] || '🌤️';
     const sunrise = new Date(sys.sunrise * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
     const sunset = new Date(sys.sunset * 1000).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    const weatherMain = weather[0].main;
+    const colors = WEATHER_COLORS[weatherMain] || WEATHER_COLORS['Clear'];
+    
+    // Determine status
+    const status = getWeatherStatus(main.temp);
     
     const weatherHTML = `
-        <div class="weather-card">
-            <h2 class="city-name">${name}</h2>
-            <p class="location-info">📍 ${sys.country}</p>
+        <div class="weather-card" style="background: ${colors.bg};">
+            <div class="live-status">
+                <span class="status-badge">🔴 LIVE</span>
+                <span class="last-updated">Updated: ${new Date().toLocaleTimeString()}</span>
+            </div>
+            <h2 class="city-name">📍 ${name}</h2>
+            <p class="location-info">${sys.country}</p>
             <div class="weather-icon-large">${icon}</div>
             <div class="temperature-display">${Math.round(main.temp)}°C</div>
             <p class="weather-description">${weather[0].main} - ${weather[0].description}</p>
+            <p class="status-text" style="color: ${colors.accentStart};">${status}</p>
             
             <div class="weather-details">
                 <div class="detail-item">
@@ -193,9 +228,32 @@ function displayWeather(data) {
     weatherContainer.innerHTML = weatherHTML;
 }
 
+// Get weather status message
+function getWeatherStatus(temp) {
+    if (temp > 35) return '🔥 Very Hot - Stay Hydrated!';
+    if (temp > 25) return '☀️ Warm & Pleasant - Great Day!';
+    if (temp > 15) return '🌤️ Mild Weather - Comfortable';
+    if (temp > 5) return '❄️ Cool - Wear a Jacket';
+    return '🥶 Very Cold - Bundle Up!';
+}
+
+// Auto refresh weather every 10 minutes
+function startAutoRefresh() {
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    
+    autoRefreshInterval = setInterval(() => {
+        if (currentCity && !isAutoRefreshing) {
+            isAutoRefreshing = true;
+            searchWeatherByCity(currentCity).finally(() => {
+                isAutoRefreshing = false;
+            });
+        }
+    }, 600000); // 10 minutes
+}
+
 // Display error
 function displayError(message) {
-    weatherContainer.innerHTML = `<div class="error">❌ ${message}</div>`;
+    weatherContainer.innerHTML = `<div class="error">${message}</div>`;
 }
 
 // Show city suggestions
@@ -254,7 +312,7 @@ function addChatMessage(text, sender) {
 // Generate AI response based on user input
 function generateAIResponse(userMessage) {
     const message = userMessage.toLowerCase();
-    const greetings = ['hi', 'hello', 'hey', 'namaste', 'hola'];
+    const greetings = ['hi', 'hello', 'hey', 'namaste', 'hola', 'hey there'];
     
     // Greeting
     if (greetings.some(g => message.includes(g))) {
@@ -337,11 +395,6 @@ function generateAIResponse(userMessage) {
         }
     }
     
-    // Health & wellness
-    if (message.includes('health') || message.includes('sick') || message.includes('allergies')) {
-        return `🏥 With current conditions in ${currentCity} (${temp}°C, ${humidity}% humidity), stay hydrated, use moisturizer if humidity is low, and protect yourself from sun/cold as needed.`;
-    }
-    
     // General weather description
     if (message.includes('weather') || message.includes('condition') || message.includes('outlook')) {
         return `🌤️ Current conditions in ${currentCity}: ${description}, ${temp}°C. Humidity: ${humidity}%, Wind: ${windSpeed} km/h.`;
@@ -371,8 +424,10 @@ function escapeHtml(text) {
 
 // Initialize app
 function init() {
-    console.log('WeatherHub India initialized!');
-    console.log('⚠️ Replace "YOUR_OPENWEATHERMAP_API_KEY" with your actual API key from openweathermap.org');
+    console.log('✅ WeatherHub India initialized!');
+    if (!checkApiKey()) {
+        console.error('⚠️ API Key not configured');
+    }
 }
 
 init();
